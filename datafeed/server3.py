@@ -18,7 +18,7 @@
 #  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 #  DEALINGS IN THE SOFTWARE.
 
-# from itertools import izip
+# from itertools import zip
 from random import normalvariate, random
 from datetime import timedelta, datetime
 
@@ -45,7 +45,7 @@ REALTIME = True
 SIM_LENGTH = timedelta(days=365 * 5)
 MARKET_OPEN = datetime.today().replace(hour=0, minute=30, second=0)
 
-# Market parms
+# Market arms
 #       min  / max  / std
 SPD = (2.0, 6.0, 0.1)
 PX = (60.0, 150.0, 1)
@@ -60,7 +60,7 @@ OVERLAP = 4
 #
 # Test Data
 
-def bwalk(min, max, std):
+def walk(min, max, std):
     """ Generates a bounded random walk. """
     rng = max - min
     while True:
@@ -72,7 +72,7 @@ def market(t0=MARKET_OPEN):
     """ Generates a random series of market conditions,
         (time, price, spread).
     """
-    for hours, px, spd in zip(bwalk(*FREQ), bwalk(*PX), bwalk(*SPD)):
+    for hours, px, spd in zip(walk(*FREQ), walk(*PX), walk(*SPD)):
         yield t0, px, spd
         t0 += timedelta(hours=abs(hours))
 
@@ -109,11 +109,11 @@ def clear_order(order, size, book, op=operator.ge, _notional=0):
     (top_order, top_size, age), tail = book[0], book[1:]
     if op(order, top_order):
         _notional += min(size, top_size) * top_order
-        sdiff = top_size - size
-        if sdiff > 0:
-            return _notional, list(add_book(tail, top_order, sdiff, age))
+        diff = top_size - size
+        if diff > 0:
+            return _notional, list(add_book(tail, top_order, diff, age))
         elif len(tail) > 0:
-            return clear_order(order, -sdiff, tail, op, _notional)
+            return clear_order(order, -diff, tail, op, _notional)
 
 
 def clear_book(buy=None, sell=None):
@@ -170,13 +170,13 @@ def read_csv():
 # Server
 
 class ThreadedHTTPServer(ThreadingMixIn, http.server.HTTPServer):
-    """ Boilerplate class for a multithreaded HTTP Server, with working
+    """ Boilerplate class for a multithreading HTTP Server, with working
         shutdown.
     """
     allow_reuse_address = True
 
     def shutdown(self):
-        """ Override MRO to shutdown properly. """
+        """ Override MRO to shut down properly. """
         self.socket.close()
         http.server.HTTPServer.shutdown(self)
 
@@ -297,7 +297,7 @@ class App(object):
             t1, bids1, asks1 = next(self._current_book_1)
             t2, bids2, asks2 = next(self._current_book_2)
         except Exception as e:
-            print("error getting stocks...reinitalizing app")
+            print("error getting stocks...re initializing app")
             self.__init__()
             t1, bids1, asks1 = next(self._current_book_1)
             t2, bids2, asks2 = next(self._current_book_2)
